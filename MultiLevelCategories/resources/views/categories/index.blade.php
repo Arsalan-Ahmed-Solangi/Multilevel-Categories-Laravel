@@ -37,10 +37,31 @@
                         </thead>
 
                         <tbody>
+                            <x-view-categories data= {{ $categories ?? array() }} />
+
                             @if (count($categories ?? array()) > 0)
 
-                                @foreach ($categories as $key => $values)
+                                @foreach ($categories ?? array() as $key => $values)
+                                    <tr>
+                                        <td>{{ ++$key }}</td>
+                                        <td>{{ $values->category_name }}</td>
+                                        <td>
+                                            {{-- {{ $values->parent_category ??  $values->childCategories->category_name }} --}}
+                                            @isset($values->parent_category)
+                                                {{ $values->childCategories->category_name }}
+                                            @endisset
+                                        </td>
+                                        <td>
+                                            <a href="" class="btn btn-success"><i class="fa fa-edit"></i> Edit</a>
+                                            <a href="" class="btn btn-danger"><i class="fa fa-trash"></i> Delete</a>
+                                        </td>
+                                    </tr>
 
+                                    {{-- Start of Check If ChildCategories Exits Then Show  --}}
+                                    @if (count($values->childCategories) > 0)
+                                        @include('childCategories',['childCategories' => $$values->childCategories])
+                                    @endif
+                                    {{-- End of Check If ChildCategories Exits Then Show  --}}
                                 @endforeach
 
                             @else
