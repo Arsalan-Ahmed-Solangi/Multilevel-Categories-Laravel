@@ -10,25 +10,39 @@ class CategoryController extends Controller
 
     public function index()
     {
-
+        $categories = Category::latest()->where('parent_category','=', null)->get();
+        return view('categories.index', compact('categories'));
     }
 
 
     public function create()
     {
-        return view('categories.create');
+        $categories = Category::where('parent_category','=',null)->pluck('category_name','category_id');
+        return view('categories.create',compact('categories'));
     }
 
 
     public function store(Request $request)
     {
+
         $request->validate([
 
-            'category_name' => 'required',
-            'category_images' => 'required',
-            'category'
+            'category_name'     => 'required|unique:categories,category_name',
+            // 'category_images.*' => 'mimes:jpg,jpeg,png|max:4096|required_if:parent_category,=,null',
+            'parent_category'       => 'numeric|nullable',
 
         ]);
+
+        // dd($request->all());
+
+        //***Start of Creating Category*******//
+        Category::create([
+            'category_name' => $request->category_name ?? null,
+            'parent_category' =>$request->parent_category ?? null,
+        ]);
+        //***End of Creating Category*******//
+
+        return redirect()->back()->with('success', 'New Category has been added successfully!');
     }
 
     /**
