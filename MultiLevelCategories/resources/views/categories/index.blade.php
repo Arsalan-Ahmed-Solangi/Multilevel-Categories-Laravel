@@ -55,7 +55,9 @@
                                             @endisset
                                         </td>
                                         <td>
-                                            <a href="{{Route('categories.edit', $values->category_id)}}" class="btn btn-success"><i class="fa fa-edit"></i> Edit</a>
+                                            <a href="{{Route('categories.show', $values->category_id)}}" class="btn btn-primary"><i class="fa fa-eye"></i> Show</a>
+
+                                            <a href="{{Route('categories.edit', $values->category_id)}}" class="btn btn-success mb-2"><i class="fa fa-edit"></i> Edit</a>
 
                                             <form action="{{route('categories.destroy',[$values->category_id])}}" method="POST">
                                                 @method('DELETE')

@@ -54,8 +54,27 @@ class CategoryController extends Controller
      */
     public function show(Category $category)
     {
-        //
+        print_r($category->category_name);
+
+        $data = $this->fetch($category);
+
+        return view('categories.show',compact('data'));
     }
+
+    //****Start of Custom Recursive Function********//
+    public function fetch($category)
+    {
+        foreach($category ?? array() as  $values)
+        {
+            echo ">>".$category->category_name;
+			if(count($category->childCategories) > 0)
+			{
+				$this->fetch($category->Child);
+			}
+
+        }
+    }
+    //****End of Custom Recursive Function*********//
 
     /**
      * Show the form for editing the specified resource.
