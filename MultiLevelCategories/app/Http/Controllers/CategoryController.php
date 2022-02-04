@@ -1,7 +1,7 @@
 <?php
 
 namespace App\Http\Controllers;
-
+use App\Models\CategoryImage;
 use App\Models\Category;
 use Illuminate\Http\Request;
 use DB;
@@ -18,7 +18,7 @@ class CategoryController extends Controller
 
     public function create()
     {
-        $categories = Category::where('parent_category','=',null)->pluck('category_name','category_id');
+        $categories = Category::where('parent_category','=',null)->get();
         return view('categories.create',compact('categories'));
     }
 
@@ -37,13 +37,28 @@ class CategoryController extends Controller
         // dd($request->all());
 
         //***Start of Creating Category*******//
-        Category::create([
+        $category = Category::create([
             'category_name' => $request->category_name ?? null,
             'parent_category' =>$request->parent_category ?? null,
         ]);
+
+        $files = [];
+        if($request->hasfile('category_images'))
+         {
+            foreach($request->file('category_images') as $file)
+            {
+                $name = time().rand(1,100).'.'.$file->extension();
+                $file->move(public_path('files'), $name);
+                $files[] = $name;
+            }
+         }
         //***End of Creating Category*******//
 
-        return redirect()->back()->with('success', 'New Category has been added successfully!');
+         $image = new CategoryImage;
+         $image->category_id = $category->category_id;
+         $image->image=json_encode($files);
+
+        return redirect()->route('categories.index')->with('success', 'New Category has been added successfully!');
     }
 
     /**
@@ -84,7 +99,7 @@ class CategoryController extends Controller
      */
     public function edit(Category $category)
     {
-        //
+        return view('categories.edit',compact('category'));
     }
 
     /**
@@ -96,7 +111,34 @@ class CategoryController extends Controller
      */
     public function update(Request $request, Category $category)
     {
-        //
+        $validator = $request->validate([
+            'category_name'     => 'required',
+            'parent_category'=> 'nullable|numeric'
+        ]);
+        if($request->category != $category->category || $request->parent_category != $category->parent_category)
+        {
+            if(isset($request->parent_category))
+            {
+                $checkDuplicate = Category::where('name', $request->category_name)->where('parent_id', $request->parent_category)->first();
+                if($checkDuplicate)
+                {
+                    return redirect()->back()->with('error', 'Category already exist in this parent.');
+                }
+            }
+            else
+            {
+                $checkDuplicate = Category::where('name', $request->name)->where('parent_id', null)->first();
+                if($checkDuplicate)
+                {
+                    return redirect()->back()->with('error', 'Category already exist with this name.');
+                }
+            }
+        }
+
+        $category->category_name = $request->category_name;
+        $category->parent_category = $request->parent_category;
+        $category->save();
+        return redirect()->back()->with('success', 'Category has been updated successfully.');
     }
 
     /**

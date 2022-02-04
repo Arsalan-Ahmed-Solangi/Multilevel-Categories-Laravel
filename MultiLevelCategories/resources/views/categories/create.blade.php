@@ -38,16 +38,27 @@
                             'class'=>'form-control','required'=>'required']) !!}
                         </div>
 
-                        {{-- <div class="form-group mb-3">
+                        <div class="form-group mb-3">
                             <strong>Category Images <span class="text-danger">*</span></strong>
-                            {!! Form::file('category_images', ['class'=>'form-control','multiple']) !!}
+                            <input type="file" name="category_images[]" multiple class="form-control"/>
                             <span class="text-success">You can select multiple images | Images only allowed when you don't select parent category</span>
-                        </div> --}}
+                        </div>
 
 
                         <div class="form-group mb-3">
                             <strong>Select Parent Category  <span class="text-success">(Optional)</span></strong>
-                           {!! Form::select('parent_category', $categories ?? array(),null, ['class'=>'form-select','placeholder'=>'--SELECT PARENT CATEGORY--']) !!}
+                            <select name="parent_category" class="form-control">
+                                <option value="">--SELECT PARENT CATEGORY ----</option>
+                                        @if($categories)
+                                            @foreach($categories as $key => $values)
+
+                                                <option value="{{$values->category_id}}">{{$values->category_name}}</option>
+                                                @if(count($values->childCategories) > 0)
+                                                    @include('categories.options',['childCategories' => $values->childCategories])
+                                                @endif
+                                            @endforeach
+                                        @endif
+                            </select>
                         </div>
 
                 </div>

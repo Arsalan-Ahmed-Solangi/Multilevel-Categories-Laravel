@@ -14,4 +14,6 @@ class CategoryImage extends Model
         'category_id',
         'image',
     ];
+
+
 }
