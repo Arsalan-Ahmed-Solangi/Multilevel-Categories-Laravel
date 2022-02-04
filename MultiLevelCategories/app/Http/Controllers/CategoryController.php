@@ -11,7 +11,7 @@ class CategoryController extends Controller
     public function index()
     {
 
-        $categories = Category::latest()->where('parent_category','=', null)->get();
+        $categories = Category::latest()->where('parent_category','=', null)->orderBy('category_id','ASC')->get();
         return view('categories.index', compact('categories'));
     }
 
@@ -88,6 +88,18 @@ class CategoryController extends Controller
      */
     public function destroy(Category $category)
     {
-        //
+
+        if(count($category->childCategories))
+        {
+            $nestedCategories = $category->childCategories ?? array();
+            foreach($nestedCategories ?? array() as $column)
+            {
+                $column = Category::findOrFail($column->category_id);
+                $column->parent_category = null;
+                $column->save();
+            }
+        }
+        $category->delete();
+        return redirect()->back()->with('success', 'Category has been deleted successfully');
     }
 }

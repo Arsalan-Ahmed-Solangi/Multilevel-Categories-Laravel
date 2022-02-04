@@ -29,7 +29,8 @@
                     <table class="table table-striped table-bordered table-hover" id="table">
                         <thead>
                             <tr>
-                                <th>SR#</th>
+
+                                <th>Category Images</th>
                                 <th>Category Name</th>
                                 <th>Parent Category</th>
                                 <th>Action</th>
@@ -37,29 +38,36 @@
                         </thead>
 
                         <tbody>
-                            <x-view-categories data= {{ $categories ?? array() }} />
 
+                            @php
+                                $a = 0;
+                            @endphp
                             @if (count($categories ?? array()) > 0)
 
                                 @foreach ($categories ?? array() as $key => $values)
                                     <tr>
-                                        <td>{{ ++$key }}</td>
+                                        <td>{{ $values->category_name }}</td>
                                         <td>{{ $values->category_name }}</td>
                                         <td>
                                             {{-- {{ $values->parent_category ??  $values->childCategories->category_name }} --}}
                                             @isset($values->parent_category)
-                                                {{ $values->childCategories->category_name }}
+                                               <b> {{ $values->childCategories->category_name }}</b>
                                             @endisset
                                         </td>
                                         <td>
-                                            <a href="" class="btn btn-success"><i class="fa fa-edit"></i> Edit</a>
-                                            <a href="" class="btn btn-danger"><i class="fa fa-trash"></i> Delete</a>
+                                            <a href="{{Route('categories.edit', $values->category_id)}}" class="btn btn-success"><i class="fa fa-edit"></i> Edit</a>
+
+                                            <form action="{{route('categories.destroy',[$values->category_id])}}" method="POST">
+                                                @method('DELETE')
+                                                @csrf
+                                                <button type="submit" class="btn btn-danger"><i class="fa fa-trash"></i>  Delete</button>
+                                            </form>
                                         </td>
                                     </tr>
 
                                     {{-- Start of Check If ChildCategories Exits Then Show  --}}
                                     @if (count($values->childCategories) > 0)
-                                        @include('childCategories',['childCategories' => $$values->childCategories])
+                                        @include('categories.childCategories',['nested' => $values->childCategories,'keys'=>$a])
                                     @endif
                                     {{-- End of Check If ChildCategories Exits Then Show  --}}
                                 @endforeach
